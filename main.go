@@ -23,7 +23,6 @@ type Body struct {
 }
 
 // const serviceURl = "https://deelay.me/2000/http://pruebas.historiaenlinea.com.co/api/healthy"
-
 func main() {
 	errors := 0
 	var delayMinutes int = 2
@@ -39,11 +38,10 @@ func main() {
 	bearer := os.Getenv("BEARER")
 
 	for true {
-		time.Sleep(time.Duration(delayMinutes) * time.Minute)
+		time.Sleep(time.Duration(delayMinutes) * time.Second)
 
 		// Validate if historiaenlinea is running
 		isRunning := validateService(serviceUrl)
-		fmt.Println("isRunning", isRunning)
 
 		if !isRunning {
 			errors += 1
@@ -110,7 +108,14 @@ func triggerPipeline(bearer string) bool {
 }
 
 func validateService(serviceURl string) bool {
-	resp, err := http.Get(serviceURl)
+	// Control http request
+	transport := &http.Transport{
+		IdleConnTimeout:       30 * time.Second,
+		ResponseHeaderTimeout: 30 * time.Second,
+	}
+	client := &http.Client{Transport: transport}
+
+	resp, err := client.Get(serviceURl)
 
 	if err != nil {
 		println("ERROR->validateService", err)
