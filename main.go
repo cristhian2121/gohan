@@ -51,8 +51,16 @@ func main() {
 
 		if errors > 2 {
 			triggerPipeline(bearer)
+			// reset errors count
 			errors = 0
+			// while the server build and deploy the application there is around 35 min
+			// this time is importar because without it, we could entry to a cicle
+			delayMinutes = 35
+			return
 		}
+
+		// restore delay
+		delayMinutes = 2
 	}
 }
 
